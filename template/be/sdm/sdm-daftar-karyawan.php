@@ -225,7 +225,7 @@
                     </div>
 
                     <div class="alert alert-danger mb-3 p-0" style="border: none; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4); background-color: #f8d7da;">
-                        <img src="<?= BE_TEMPLATE_HOST ?>/_statis/Notifikasi.png" alt="Notifikasi" style="width: 100%; height: auto; display: block;">
+                        <img src="/frameworkV2/media/aset/Notifikasi.png" alt="Notifikasi Format Excel" style="width: 100%; height: auto; display: block;">
                     </div>
 
                     <div class="alert alert-info mb-3">

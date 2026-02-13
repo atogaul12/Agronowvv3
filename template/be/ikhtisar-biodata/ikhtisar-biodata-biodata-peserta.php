@@ -13,11 +13,10 @@
             <h4 class="card-title">Filter data</h4>
         </div>
         <div class="card-body">
-            <!-- Form method berubah dari GET menjadi POST -->
             <form method="post" action="<?= $targetpage ?>" id="filterForm">
 
-                <!-- Nama Pelatihan --->
-                <div class="form-group row mb-2">
+                <!-- Judul Pelatihan -->
+                <div class="form-group row mb-3">
                     <label class="col-sm-2 col-form-label">Judul Pelatihan</label>
                     <div class="col-sm-5">
                         <div style="position: relative;">
@@ -47,7 +46,7 @@
                 </div>
 
                 <!-- Periode -->
-                <div class="form-group row mb-2">
+                <div class="form-group row mb-3">
                     <label class="col-sm-2 col-form-label">Periode</label>
                     <div class="col-sm-5">
                         <div class="input-group">
@@ -68,9 +67,8 @@
                     </div>
                 </div>
 
-
                 <!-- Kategori -->
-                <div class="form-group row mb-2">
+                <div class="form-group row mb-3">
                     <label class="col-sm-2 col-form-label">Kategori</label>
                     <div class="col-sm-5">
                         <select class="form-control" name="cat_id" id="catSelect">
@@ -85,9 +83,9 @@
                     </div>
                 </div>
 
-                <!-- Entitas Saat Ini -->
-                <div class="form-group row mb-2">
-                    <label class="col-sm-2 col-form-label">Entitas Saat Ini</label>
+                <!-- Entitas Sekarang -->
+                <div class="form-group row mb-3">
+                    <label class="col-sm-2 col-form-label">Entitas Sekarang</label>
                     <div class="col-sm-5">
                         <select class="form-control" name="entitas_saat_ini" id="entitasSekarangSelect">
                             <option value="">-- Semua Entitas --</option>
@@ -101,9 +99,9 @@
                     </div>
                 </div>
 
-                <!-- Entitas Saat Ikut Pelatihan -->
-                <div class="form-group row mb-2">
-                    <label class="col-sm-2 col-form-label">Entitas Saat Ikut Pelatihan</label>
+                <!-- Entitas Pelatihan -->
+                <div class="form-group row mb-3">
+                    <label class="col-sm-2 col-form-label">Entitas Pelatihan</label>
                     <div class="col-sm-5">
                         <select class="form-control" name="entitas_saat_ikut" id="entitasPelatihanSelect">
                             <option value="">-- Semua Entitas --</option>
@@ -118,13 +116,18 @@
                 </div>
 
                 <!-- Button Group -->
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="feather-search me-2"></i>Cari
-                    </button>
-                    <a href="<?= BE_MAIN_HOST ?>/ikhtisar-biodata/biodata-peserta?reset=1" class="btn btn-secondary px-4">
-                        <i class="feather-x me-2"></i>Reset
-                    </a>
+                <div class="form-group row mb-3">
+                    <div class="col-sm-2"></div>
+                    <div class="col-sm-5">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" style="width: 100px;">
+                                <i class="feather-search me-2"></i>Cari
+                            </button>
+                            <a href="<?= BE_MAIN_HOST ?>/ikhtisar-biodata/biodata-peserta?reset=1" class="btn btn-secondary" style="width: 100px;">
+                                <i class="feather-x me-2"></i>Reset
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -163,10 +166,10 @@
                                     <th><b>Tanggal Selesai</b></th>
                                     <th><b>NIK</b></th>
                                     <th><b>Nama</b></th>
-                                    <th style="white-space:nowrap;"><b>Entitas Saat Ini</b></th>
-                                    <th style="white-space:nowrap;"><b>Entitas Saat Ikut Pelatihan</b></th>
+                                    <th style="white-space:nowrap;"><b>Entitas Sekarang</b></th>
+                                    <th style="white-space:nowrap;"><b>Entitas Pelatihan</b></th>
                                     <th><b>Email</b></th>
-                                    <th><b>Nomor Telepon</b></th>
+                                    <th><b>No. Telepon</b></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -201,8 +204,20 @@
                             </tbody>
                         </table>
 
-                        <!-- Pagination -->
-                        <?= $arrPage['bar'] ?>
+                        <!-- Pagination dengan Info -->
+                        <?php if (!empty($data) && isset($arrPage['bar'])): ?>
+                            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                <div>
+                                    <small class="text-muted">
+                                        Menampilkan <?= ($arrPage['num'] + 1) ?> - <?= min($arrPage['num'] + count($data), $arrPage['total'] ?? 0) ?>
+                                        dari <?= $arrPage['total'] ?? 0 ?> data
+                                    </small>
+                                </div>
+                                <div>
+                                    <?= $arrPage['bar'] ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -217,37 +232,38 @@
                 <div class="card-body">
                     <div class="alert alert-info mb-3">
                         <h6 class="alert-heading"><strong>📋 Informasi Penting:</strong></h6>
-                        <p class="mb-2">Ikuti langkah-langkah berikut untuk mengunduh dan membuka file Excel dengan benar:</p>
+                        <p class="mb-2">Ikuti langkah berikut untuk mengunduh dan membuka file Excel:</p>
                         <ol class="mb-0">
-                            <li>Klik tombol <strong>"Export Excel"</strong> di bawah untuk mengunduh file.</li>
-                            <li>Jika Anda mendapatkan notifikasi format file saat membuka, ikuti langkah selanjutnya.</li>
+                            <li>Klik tombol <strong>"Download Excel"</strong> untuk mengunduh file.</li>
+                            <li>Jika muncul notifikasi format file saat membuka, ikuti langkah selanjutnya.</li>
                         </ol>
                     </div>
 
                     <div class="alert alert-danger mb-3 p-0" style="border: none; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4); background-color: #f8d7da;">
-                        <img src="<?= BE_TEMPLATE_HOST ?>/_statis/Notifikasi.png" alt="Notifikasi" style="width: 100%; height: auto; display: block;">
+                        <img src="/frameworkV2/media/aset/Notifikasi.png" alt="Notifikasi Format Excel" style="width: 100%; height: auto; display: block;">
                     </div>
 
                     <div class="alert alert-info mb-3">
-                        <p class="mb-2"><strong>✅ Cara mengatasi notifikasi tersebut:</strong></p>
+                        <p class="mb-2"><strong>✅ Cara mengatasi notifikasi:</strong></p>
                         <ol class="mb-0">
-                            <li>Klik tombol <strong>"Yes"</strong> untuk melanjutkan membuka file.</li>
-                            <li>Setelah file terbuka, lakukan <strong>Save As</strong> dengan format Excel terbaru (.xlsx).</li>
-                            <li>Simpan file dengan nama yang Anda inginkan.</li>
+                            <li>Klik tombol <strong>"Yes"</strong> untuk melanjutkan.</li>
+                            <li>Setelah terbuka, lakukan <strong>Save As</strong> dengan format Excel terbaru (.xlsx).</li>
+                            <li>Simpan file dengan nama yang diinginkan.</li>
                         </ol>
                     </div>
 
                     <div class="alert alert-info mb-3">
                         <p class="mb-0">
-                            <strong>💡 Tips:</strong> Gunakan format .xlsx (Excel terbaru) untuk menghilangkan notifikasi ini di masa depan.
+                            <strong>💡 Tips:</strong> Gunakan format .xlsx (Excel terbaru) untuk menghilangkan notifikasi di masa depan.
                         </p>
                     </div>
 
-                    <p class="text-muted mb-3"><strong>Catatan:</strong> File Excel akan diunduh dengan semua filter yang telah Anda terapkan.</p>
+                    <p class="text-muted mb-3"><strong>Catatan:</strong> File Excel akan diunduh dengan semua filter yang diterapkan.</p>
 
-                    <!-- Export button hanya dengan parameter export, tanpa query string filter -->
-                    <a href="<?= BE_MAIN_HOST ?>/ikhtisar-biodata/biodata-peserta?export=excel" class="btn btn-primary btn-block w-100">
-                        <i class="feather-download me-2"></i> Download Excel
+                    <a href="<?= BE_MAIN_HOST ?>/ikhtisar-biodata/biodata-peserta?export=excel"
+                        class="btn btn-primary w-100"
+                        style="height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <i class="feather-download me-2"></i>Download Excel
                     </a>
                 </div>
             </div>
@@ -306,14 +322,6 @@
     const resultBox = document.getElementById('pelatihanResult');
     const crIdInput = document.getElementById('cr_id');
     let timer = null;
-
-    // Set nilai dari hidden input untuk menampilkan nama pelatihan yang dipilih sebelumnya
-    document.addEventListener('DOMContentLoaded', function() {
-        if (crIdInput.value) {
-            // Jika ada cr_id yang tersimpan, tampilkan nama pelatihan sebelumnya dari backend
-            // Anda bisa tambahkan hidden field lagi untuk nama pelatihan
-        }
-    });
 
     inputPelatihan.addEventListener('keyup', function() {
         clearTimeout(timer);
