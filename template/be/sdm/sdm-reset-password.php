@@ -1,12 +1,12 @@
-<?php
-//frameworkv2/template/be/sdm/reset-password.php
-?>
-
 <div class="page-header">
     <div class="page-header-left d-flex align-items-center">
         <div class="page-header-title">
             <h5 class="m-b-10"><?= $this->pageTitle ?></h5>
         </div>
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="<?= BE_MAIN_HOST ?>/sdm/daftar-karyawan">Master Karyawan</a></li>
+            <li class="breadcrumb-item active">Reset Password</li>
+        </ul>
     </div>
 </div>
 
@@ -35,34 +35,32 @@
         <div class="card-body">
             <!-- Info Karyawan -->
             <div class="alert alert-info mb-4">
-                <h6 class="alert-heading"><i class="feather-user me-2"></i><strong>Informasi Karyawan</strong></h6>
-                <div class="table-responsive">
-                    <table class="table table-sm table-borderless mb-0">
-                        <tr>
-                            <td width="150"><strong>NIK</strong></td>
-                            <td>: <?= htmlspecialchars($dataMember->member_nip, ENT_QUOTES) ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Nama</strong></td>
-                            <td>: <?= htmlspecialchars($dataMember->member_name, ENT_QUOTES) ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Entitas</strong></td>
-                            <td>: <?= htmlspecialchars($dataMember->group_name, ENT_QUOTES) ?></td>
-                        </tr>
-                    </table>
-                </div>
+                <h6 class="alert-heading"><i class="feather-user me-2"></i>Informasi Karyawan</h6>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr>
+                        <td width="150"><strong>NIK</strong></td>
+                        <td>: <?= htmlspecialchars($dataMember->member_nip, ENT_QUOTES) ?></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nama</strong></td>
+                        <td>: <?= htmlspecialchars($dataMember->member_name, ENT_QUOTES) ?></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Entitas</strong></td>
+                        <td>: <?= htmlspecialchars($dataMember->group_name, ENT_QUOTES) ?></td>
+                    </tr>
+                </table>
             </div>
 
             <?php if ($is_aghris): ?>
                 <!-- Warning untuk akun AGHRIS -->
-                <div class="alert alert-warning mb-3">
-                    <h6 class="alert-heading"><i class="feather-alert-triangle me-2"></i><strong>Akun Terhubung dengan AGHRIS</strong></h6>
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading"><i class="feather-alert-triangle me-2"></i>Akun Terhubung dengan AGHRIS</h6>
                     <p class="mb-0">Akun ini terhubung dengan sistem AGHRIS. Reset password hanya bisa dilakukan melalui aplikasi AGHRIS. Silakan hubungi administrator AGHRIS untuk bantuan lebih lanjut.</p>
                 </div>
 
                 <div class="d-flex gap-2">
-                    <a href="<?= BE_MAIN_HOST ?>/sdm/daftar-karyawan" class="btn btn-secondary" style="width: 120px;">
+                    <a href="<?= BE_MAIN_HOST ?>/sdm/daftar-karyawan" class="btn btn-secondary">
                         <i class="feather-arrow-left me-2"></i>Kembali
                     </a>
                 </div>
@@ -71,8 +69,8 @@
                 <form method="post" onsubmit="return confirm('Apakah Anda yakin ingin mereset password ke NIK?');">
                     <input type="hidden" name="confirm_reset" value="1">
 
-                    <div class="alert alert-warning mb-3">
-                        <h6 class="alert-heading"><i class="feather-info me-2"></i><strong>Informasi Reset Password</strong></h6>
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading"><i class="feather-info me-2"></i>Informasi Reset Password</h6>
                         <ul class="mb-0">
                             <li>Password akan direset ke <strong>NIK karyawan</strong></li>
                             <li>Password baru: <strong><?= htmlspecialchars($dataMember->member_nip, ENT_QUOTES) ?></strong></li>
@@ -83,7 +81,7 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-danger" style="width: 150px;">
-                            <i class="feather-refresh-cw me-2"></i>Reset
+                            <i class="feather-refresh-cw me-2"></i>Reset Password
                         </button>
                         <a href="<?= BE_MAIN_HOST ?>/sdm/daftar-karyawan" class="btn btn-secondary" style="width: 120px;">
                             <i class="feather-arrow-left me-2"></i>Kembali

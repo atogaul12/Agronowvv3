@@ -1,5 +1,5 @@
 <?php
-//frameworkv2/template/be/sdm/daftar-karyawan.php
+// agronow/agronow_insight/template/be/sdm/daftar-karyawan.php
 ?>
 
 <div class="page-header">
@@ -202,9 +202,7 @@
                         </table>
 
                         <!-- Pagination -->
-                        <div class="mt-3">
-                            <?= $arrPage['bar'] ?>
-                        </div>
+                        <?= $arrPage['bar'] ?>
                     </div>
                 </div>
             </div>

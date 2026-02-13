@@ -15,7 +15,6 @@ class Akses extends db {
 		if(isset($_SESSION['be'])) {
 			$kode_session = $_SESSION['be']['kode_session'];
 			// cek kode session sama ga dg di db?
-			//$sql = "select id_user from sdm_user where id_user='".$_SESSION['be']['id_user']."' and kode_session='".$kode_session."' ";
 			$sql = "select member_id from _member where member_id='".$_SESSION['be']['id_user']."' and kode_session='".$kode_session."' ";
 			$data = $this->doQuery($sql,0,'object');
 			if(!empty($data[0]->member_id)) {
@@ -36,13 +35,24 @@ class Akses extends db {
 		$username = $GLOBALS['security']->teksEncode($username);
 		$password = $GLOBALS['security']->teksEncode($password);
 		
-		$sql = "SELECT * FROM _member a, _member_x_user b, _user_level c, _group d WHERE a.member_id = b.id_member AND a.group_id = d.group_id AND b.user_level_id = c.user_level_id AND a.member_nip = '".$username."' ";
+		$sql = 
+			"SELECT 
+				a.member_id, a.member_password, a.member_status, a.member_name, 
+				b.tipe_akses_member, 
+				c.user_level_name, c.user_level_id, 
+				d.group_id, d.silsilah, d.id_klien
+			 FROM 
+				_member a, _member_x_user b, _user_level c, _group d 
+			 WHERE 
+				a.member_id = b.id_member AND a.group_id = d.group_id AND b.user_level_id = c.user_level_id AND c.user_level_status='1'
+				AND a.member_nip = '".$username."' ";
 		
 		$data = $this->doQuery($sql,0,'object');
 		$id_user = $data[0]->member_id;
 		$password_hash = $data[0]->member_password;
 		$level = $data[0]->user_level_name;
 		$id_akses_peran = $data[0]->user_level_id;
+		$tipe_akses_member = $data[0]->tipe_akses_member;
 		$status = $data[0]->member_status;
 		$name = $data[0]->member_name;
 		$id_group = $data[0]->group_id;
@@ -59,8 +69,6 @@ class Akses extends db {
 				$is_valid = false; 
 			}
 		}
-		
-		
 		
 		if($is_valid==true) {
 			$_SESSION['be'] = array();
@@ -82,7 +90,8 @@ class Akses extends db {
 			// role
 			$_SESSION['be']['level'] = $level;
 			$_SESSION['be']['id_akses_peran'] = $id_akses_peran;
-		
+			$_SESSION['be']['tipe_akses_member'] = $tipe_akses_member;
+			
 			$arrH['status'] = 1;
 			$arrH['pesan'] = 'Login berhasil.';
 		} else {
@@ -132,7 +141,6 @@ class Akses extends db {
 			$data = $this->doQuery($sql,0,'object');
 			$app_id = $data[0]->access_id;
 			
-			//$sql = "select u.id_user from sdm_user u, akses_peran p where u.id_user='".$id_user."' and u.id_akses_peran=p.id and p.hak_akses like '%\"".$app_id."\"%' ";
 			$sql = "SELECT id_member FROM _member_x_user a, _user_level b, _user_level_access c WHERE a.user_level_id = b.user_level_id AND b.user_level_id = c.user_level_id AND c.access_id like '%\"".$app_id."\"%' ";
 			$data = $this->doQuery($sql,0,'object');
 			if(!empty($data[0]->id_user)) {

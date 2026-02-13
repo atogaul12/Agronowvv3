@@ -2,6 +2,9 @@
 //agronow/agronow_insight/navigasi/be/nav.sdm.php
 session_start();
 
+// ============================================================================
+// AJAX ENDPOINT: AUTOCOMPLETE PENCARIAN KARYAWAN
+// ============================================================================
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'cari_karyawan' && isset($_GET['q'])) {
     header('Content-Type: application/json');
 
@@ -54,12 +57,16 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'cari_karyawan' && isset($_GET['q'
     exit;
 }
 
+// ============================================================================
 // VALIDASI AKSES & ROUTING
+// ============================================================================
 if ($this->pageLevel1 == "sdm") {
     $butuh_login = true;
     $akses->isBolehAkses('user.devmode', true);
 
+    // ========================================================================
     // PAGE: DAFTAR DATA KARYAWAN
+    // ========================================================================
     if ($this->pageLevel2 == "daftar-karyawan") {
         $this->setView("Manajemen Master Karyawan", "daftar-karyawan", "");
 
@@ -222,7 +229,9 @@ if ($this->pageLevel1 == "sdm") {
         $data = $akses->doQuery($arrPage['sql'], 0, 'object');
     }
 
+    // ========================================================================
     // PAGE: TAMBAH / EDIT KARYAWAN
+    // ========================================================================
     else if ($this->pageLevel2 == "form-karyawan") {
         $this->setView("Form Karyawan", "form-karyawan", "");
 
@@ -451,7 +460,9 @@ if ($this->pageLevel1 == "sdm") {
         }
     }
 
+    // ========================================================================
     // PAGE: UPDATE PASSWORD
+    // ========================================================================
     else if ($this->pageLevel2 == "update-password") {
         $this->setView("Update Password Karyawan", "update-password", "");
 
@@ -522,7 +533,9 @@ if ($this->pageLevel1 == "sdm") {
         }
     }
 
+    // ========================================================================
     // PAGE: RESET PASSWORD
+    // ========================================================================
     else if ($this->pageLevel2 == "reset-password") {
         $this->setView("Reset Password Karyawan", "reset-password", "");
 
@@ -591,7 +604,9 @@ if ($this->pageLevel1 == "sdm") {
         }
     }
 
-    // PAGE: UPLOAD MASSAL
+    // ========================================================================
+    // PAGE: UPLOAD MASSAL (TEMPLATE 2 ONLY - 5 KOLOM)
+    // ========================================================================
     else if ($this->pageLevel2 == "upload-massal") {
         $this->setView("Upload Data Massal", "upload-massal", "");
 
@@ -604,159 +619,230 @@ if ($this->pageLevel1 == "sdm") {
 
         $strError = '';
 
+        // ================================================================
         // PROSES UPLOAD FILE (HANYA TEMPLATE 2: 5 KOLOM)
+        // ================================================================
         if ($_POST) {
-            $target_group_id = (int)$_POST['target_group_id'];
-            $delimiter       = $security->teksEncode($_POST['delimiter']);
+            try {
+                $target_group_id = (int)$_POST['target_group_id'];
+                $delimiter       = $security->teksEncode($_POST['delimiter']);
 
-            // Validasi delimiter
-            if ($delimiter == "," || $delimiter == ";") {
-                // valid
-            } else {
-                $delimiter = '';
-            }
-
-            // Validasi awal
-            $strError .= $umum->cekFile($_FILES['csv_file'], 'csv', '', true);
-            if (empty($target_group_id)) $strError .= '<li>Entitas target wajib dipilih.</li>';
-            if (empty($delimiter))       $strError .= '<li>Delimiter wajib dipilih.</li>';
-
-            // --- Proses jika validasi awal lolos ---
-            if (strlen($strError) <= 0) {
-                $errors  = [];
-                $success = [];
-
-                // CACHE: Level karyawan → array [nama => id]
-                $levelCache = [];
-                foreach ($listLevel as $lv) {
-                    $levelCache[strtolower(trim($lv->nama))] = $lv->id;
+                // Validasi delimiter
+                if ($delimiter == "," || $delimiter == ";") {
+                    // valid
+                } else {
+                    $delimiter = '';
                 }
 
-                // TAMBAHAN: Validasi file bisa dibuka
-                if (!file_exists($_FILES['csv_file']['tmp_name'])) {
-                    $_SESSION['notif_error'] = '<li>File upload tidak ditemukan. Silakan coba lagi.</li>';
-                    header("location:" . BE_MAIN_HOST . "/sdm/upload-massal");
-                    exit;
-                }
+                // Validasi awal
+                $strError .= $umum->cekFile($_FILES['csv_file'], 'csv', '', true);
+                if (empty($target_group_id)) $strError .= '<li>Entitas target wajib dipilih.</li>';
+                if (empty($delimiter))       $strError .= '<li>Delimiter wajib dipilih.</li>';
 
-                $handle = @fopen($_FILES['csv_file']['tmp_name'], 'r');
+                // --- Proses jika validasi awal lolos ---
+                if (strlen($strError) <= 0) {
+                    $errors  = [];
+                    $success = [];
 
-                if ($handle === false) {
-                    $_SESSION['notif_error'] = '<li>Gagal membuka file CSV. Pastikan file valid dan tidak corrupt.</li>';
-                    header("location:" . BE_MAIN_HOST . "/sdm/upload-massal");
-                    exit;
-                }
+                    // ============================================================
+                    // CACHE: Level karyawan → array [nama => id]
+                    // ============================================================
+                    $levelCache = [];
+                    foreach ($listLevel as $lv) {
+                        $levelCache[strtolower(trim($lv->nama))] = $lv->id;
+                    }
 
-                $row    = 0;
-                $col    = [];
+                    // ============================================================
+                    // Validasi file bisa dibuka
+                    // ============================================================
+                    if (!file_exists($_FILES['csv_file']['tmp_name'])) {
+                        throw new Exception('File upload tidak ditemukan. Silakan coba lagi.');
+                    }
 
-                while (($data = fgetcsv($handle, 1000, $delimiter)) !== FALSE) {
-                    $row++;
+                    $handle = @fopen($_FILES['csv_file']['tmp_name'], 'r');
 
-                    // ROW 1: Validasi header harus 5 kolom (Template 2)
-                    if ($row == 1) {
-                        $juml_kolom = count($data);
+                    if ($handle === false) {
+                        throw new Exception('Gagal membuka file CSV. Pastikan file valid dan tidak corrupt.');
+                    }
 
-                        // Harus tepat 5 kolom
-                        if ($juml_kolom != 5) {
-                            $errors[] = 'Format file tidak sesuai! Sistem hanya menerima template dengan <b>5 kolom</b> '
-                                . '(NIK, NIK Baru, Nama Karyawan, Level Karyawan, Status). '
-                                . 'File Anda memiliki <b>' . $juml_kolom . ' kolom</b>. '
-                                . 'Kemungkinan delimiter yang dipilih salah atau format template tidak sesuai.';
-                            break;
+                    $row    = 0;
+                    $col    = [];
+
+                    while (($data = fgetcsv($handle, 1000, $delimiter)) !== FALSE) {
+                        $row++;
+
+                        // ============================================================
+                        // ROW 1: Validasi header harus 5 kolom (Template 2)
+                        // ============================================================
+                        if ($row == 1) {
+                            $juml_kolom = count($data);
+
+                            // Harus tepat 5 kolom
+                            if ($juml_kolom != 5) {
+                                fclose($handle);
+                                throw new Exception(
+                                    'Format file tidak sesuai! Sistem hanya menerima template dengan <b>5 kolom</b> ' .
+                                        '(NIK, NIK Baru, Nama Karyawan, Level Karyawan, Status). ' .
+                                        'File Anda memiliki <b>' . $juml_kolom . ' kolom</b>. ' .
+                                        'Kemungkinan delimiter yang dipilih salah atau format template tidak sesuai.'
+                                );
+                            }
+
+                            // Mapping kolom untuk Template 2 (5 kolom)
+                            $col = [
+                                'nik_lama' => 0,
+                                'nik_baru' => 1,
+                                'nama'     => 2,
+                                'level'    => 3,
+                                'status'   => 4
+                            ];
+                            continue; // skip header
                         }
 
-                        // Mapping kolom untuk Template 2 (5 kolom)
-                        $col = [
-                            'nik_lama' => 0,
-                            'nik_baru' => 1,
-                            'nama'     => 2,
-                            'level'    => 3,
-                            'status'   => 4
-                        ];
-                        continue; // skip header
-                    }
+                        // ============================================================
+                        // ROW 2+: Validasi & proses per baris
+                        // ============================================================
 
-                    // ROW 2+: Validasi & proses per baris
+                        $nik_lama = trim($data[$col['nik_lama']] ?? '');
+                        $nik_baru = trim($data[$col['nik_baru']] ?? '');
+                        $nama     = trim($data[$col['nama']]     ?? '');
+                        $level    = trim($data[$col['level']]    ?? '');
+                        $status   = trim($data[$col['status']]   ?? '');
 
-                    $nik_lama = trim($data[$col['nik_lama']] ?? '');
-                    $nik_baru = trim($data[$col['nik_baru']] ?? '');
-                    $nama     = trim($data[$col['nama']]     ?? '');
-                    $level    = trim($data[$col['level']]    ?? '');
-                    $status   = trim($data[$col['status']]   ?? '');
+                        // Validasi field wajib (NIK Baru boleh kosong)
+                        if (empty($nik_lama) || empty($nama) || empty($level) || empty($status)) {
+                            $errors[] = "Baris $row salah: data tidak lengkap (NIK, Nama, Level, Status wajib diisi).";
+                            continue;
+                        }
 
-                    // Validasi field wajib (NIK Baru boleh kosong)
-                    if (empty($nik_lama) || empty($nama) || empty($level) || empty($status)) {
-                        $errors[] = "Baris $row salah: data tidak lengkap (NIK, Nama, Level, Status wajib diisi).";
-                        continue;
-                    }
+                        // Validasi status
+                        if ($status == 'Aktif') {
+                            $status_db = 'active';
+                        } else if ($status == 'Nonaktif') {
+                            $status_db = 'block';
+                        } else {
+                            $errors[] = "Baris $row salah: status hanya boleh 'Aktif' atau 'Nonaktif' (dapat: '$status').";
+                            continue;
+                        }
 
-                    // Validasi status
-                    if ($status == 'Aktif') {
-                        $status_db = 'active';
-                    } else if ($status == 'Nonaktif') {
-                        $status_db = 'block';
-                    } else {
-                        $errors[] = "Baris $row salah: status hanya boleh 'Aktif' atau 'Nonaktif' (dapat: '$status').";
-                        continue;
-                    }
+                        // Sanitize
+                        $nik_lama = $security->teksEncode($nik_lama);
+                        $nik_baru = $security->teksEncode($nik_baru);
+                        $nama     = $security->teksEncode($nama);
+                        $level    = $security->teksEncode($level);
 
-                    // Sanitize
-                    $nik_lama = $security->teksEncode($nik_lama);
-                    $nik_baru = $security->teksEncode($nik_baru);
-                    $nama     = $security->teksEncode($nama);
-                    $level    = $security->teksEncode($level);
+                        // --- Cek Level Karyawan (dari cache) ---
+                        $level_key = strtolower(trim($level));
+                        if (!isset($levelCache[$level_key])) {
+                            $errors[] = "Baris $row salah: level karyawan '$level' tidak ditemukan.";
+                            continue;
+                        }
+                        $level_id = $levelCache[$level_key];
 
-                    // --- Cek Level Karyawan (dari cache) ---
-                    $level_key = strtolower(trim($level));
-                    if (!isset($levelCache[$level_key])) {
-                        $errors[] = "Baris $row salah: level karyawan '$level' tidak ditemukan.";
-                        continue;
-                    }
-                    $level_id = $levelCache[$level_key];
+                        // --- Cek apakah NIK Lama sudah ada ---
+                        $stmt_cek = $akses->con->prepare(
+                            "SELECT member_id FROM _member WHERE group_id = ? AND member_nip = ? LIMIT 1"
+                        );
 
-                    // --- Cek apakah NIK Lama sudah ada ---
-                    $stmt_cek = $akses->con->prepare(
-                        "SELECT member_id FROM _member WHERE group_id = ? AND member_nip = ? LIMIT 1"
-                    );
+                        if (!$stmt_cek) {
+                            $errors[] = "Baris $row gagal: error prepare statement - " . $akses->con->error;
+                            continue;
+                        }
 
-                    if (!$stmt_cek) {
-                        $errors[] = "Baris $row gagal: error prepare statement - " . $akses->con->error;
-                        continue;
-                    }
+                        $stmt_cek->bind_param("is", $target_group_id, $nik_lama);
 
-                    $stmt_cek->bind_param("is", $target_group_id, $nik_lama);
+                        if (!$stmt_cek->execute()) {
+                            $errors[] = "Baris $row gagal: error execute query - " . $stmt_cek->error;
+                            $stmt_cek->close();
+                            continue;
+                        }
 
-                    if (!$stmt_cek->execute()) {
-                        $errors[] = "Baris $row gagal: error execute query - " . $stmt_cek->error;
-                        $stmt_cek->close();
-                        continue;
-                    }
+                        $res_cek = $stmt_cek->get_result();
 
-                    $res_cek = $stmt_cek->get_result();
+                        if ($res_cek->num_rows > 0) {
+                            // ==================================================
+                            // MODE: UPDATE (NIK Lama ditemukan)
+                            // ==================================================
+                            $member_id = $res_cek->fetch_object()->member_id;
+                            $stmt_cek->close();
 
-                    if ($res_cek->num_rows > 0) {
-                        // MODE: UPDATE (NIK Lama ditemukan)
-                        $member_id = $res_cek->fetch_object()->member_id;
-                        $stmt_cek->close();
+                            $use_nik = !empty($nik_baru) ? $nik_baru : $nik_lama;
 
-                        $use_nik = !empty($nik_baru) ? $nik_baru : $nik_lama;
+                            // Jika NIK Baru berbeda, cek duplikasi
+                            if (!empty($nik_baru) && $nik_baru != $nik_lama) {
+                                $stmt_dup = $akses->con->prepare(
+                                    "SELECT member_id FROM _member WHERE group_id = ? AND member_nip = ? AND member_id != ? LIMIT 1"
+                                );
 
-                        // Jika NIK Baru berbeda, cek duplikasi
-                        if (!empty($nik_baru) && $nik_baru != $nik_lama) {
-                            $stmt_dup = $akses->con->prepare(
-                                "SELECT member_id FROM _member WHERE group_id = ? AND member_nip = ? AND member_id != ? LIMIT 1"
-                            );
+                                if (!$stmt_dup) {
+                                    $errors[] = "Baris $row gagal: error prepare statement duplikasi - " . $akses->con->error;
+                                    continue;
+                                }
 
-                            if (!$stmt_dup) {
-                                $errors[] = "Baris $row gagal: error prepare statement duplikasi - " . $akses->con->error;
+                                $stmt_dup->bind_param("isi", $target_group_id, $nik_baru, $member_id);
+
+                                if (!$stmt_dup->execute()) {
+                                    $errors[] = "Baris $row gagal: error execute duplikasi - " . $stmt_dup->error;
+                                    $stmt_dup->close();
+                                    continue;
+                                }
+
+                                $res_dup = $stmt_dup->get_result();
+
+                                if ($res_dup->num_rows > 0) {
+                                    $errors[] = "Baris $row salah: NIK baru '$nik_baru' sudah terdaftar pada entitas ini.";
+                                    $stmt_dup->close();
+                                    continue;
+                                }
+                                $stmt_dup->close();
+                            }
+
+                            // Eksekusi UPDATE
+                            $stmt_update = $akses->con->prepare("
+                                UPDATE _member SET
+                                    member_name             = ?,
+                                    member_nip              = ?,
+                                    id_level_karyawan       = ?,
+                                    member_status           = ?,
+                                    member_user_update_date = NOW()
+                                WHERE member_id = ?
+                            ");
+
+                            if (!$stmt_update) {
+                                $errors[] = "Baris $row gagal update: error prepare statement - " . $akses->con->error;
                                 continue;
                             }
 
-                            $stmt_dup->bind_param("isi", $target_group_id, $nik_baru, $member_id);
+                            $stmt_update->bind_param("ssisi", $nama, $use_nik, $level_id, $status_db, $member_id);
+
+                            if ($stmt_update->execute()) {
+                                $success[] = "Baris $row berhasil update (NIK: $nik_lama → $use_nik).";
+                            } else {
+                                $errors[] = "Baris $row gagal update (NIK: $nik_lama): " . $stmt_update->error;
+                            }
+                            $stmt_update->close();
+                        } else {
+                            // ==================================================
+                            // MODE: INSERT (NIK Lama tidak ditemukan = data baru)
+                            // ==================================================
+                            $stmt_cek->close();
+
+                            $use_nik = !empty($nik_baru) ? $nik_baru : $nik_lama;
+
+                            // Cek duplikasi NIK untuk data baru
+                            $stmt_dup = $akses->con->prepare(
+                                "SELECT member_id FROM _member WHERE group_id = ? AND member_nip = ? LIMIT 1"
+                            );
+
+                            if (!$stmt_dup) {
+                                $errors[] = "Baris $row gagal: error prepare statement duplikasi insert - " . $akses->con->error;
+                                continue;
+                            }
+
+                            $stmt_dup->bind_param("is", $target_group_id, $use_nik);
 
                             if (!$stmt_dup->execute()) {
-                                $errors[] = "Baris $row gagal: error execute duplikasi - " . $stmt_dup->error;
+                                $errors[] = "Baris $row gagal: error execute duplikasi insert - " . $stmt_dup->error;
                                 $stmt_dup->close();
                                 continue;
                             }
@@ -764,184 +850,133 @@ if ($this->pageLevel1 == "sdm") {
                             $res_dup = $stmt_dup->get_result();
 
                             if ($res_dup->num_rows > 0) {
-                                $errors[] = "Baris $row salah: NIK baru '$nik_baru' sudah terdaftar pada entitas ini.";
+                                $errors[] = "Baris $row salah: NIK '$use_nik' sudah terdaftar pada entitas ini.";
                                 $stmt_dup->close();
                                 continue;
                             }
                             $stmt_dup->close();
+
+                            // Password = NIK
+                            $password = md5($use_nik);
+
+                            // Eksekusi INSERT
+                            $stmt_insert = $akses->con->prepare("
+                                INSERT INTO _member (
+                                    group_id, group_id_aghris, member_name_aghris, mlevel_id,
+                                    member_name, member_nip, member_type,
+                                    member_login_web, member_login_apk, member_login_ipa,
+                                    member_reg_id, member_reg_channel, member_device,
+                                    member_desc, date_masuk_kerja, member_jabatan, member_kel_jabatan,
+                                    member_unit_kerja, member_image, member_gender, member_address,
+                                    member_city, member_province, member_postcode,
+                                    id_level_karyawan, member_status, member_password,
+                                    member_create_date, member_user_update_date
+                                ) VALUES (
+                                    ?, '0', '', '1',
+                                    ?, ?, 'general',
+                                    '0', '0', '0',
+                                    '', 'web', '',
+                                    '', '0000-00-00', '', '',
+                                    '', '', 'Pria', '',
+                                    '', '', '00000',
+                                    ?, ?, ?,
+                                    NOW(), NOW()
+                                )
+                            ");
+
+                            if (!$stmt_insert) {
+                                $errors[] = "Baris $row gagal insert: error prepare statement - " . $akses->con->error;
+                                continue;
+                            }
+
+                            $stmt_insert->bind_param("ississ", $target_group_id, $nama, $use_nik, $level_id, $status_db, $password);
+
+                            if ($stmt_insert->execute()) {
+                                $success[] = "Baris $row berhasil tambah (NIK: $use_nik).";
+                            } else {
+                                $errors[] = "Baris $row gagal tambah (NIK: $use_nik): " . $stmt_insert->error;
+                            }
+                            $stmt_insert->close();
                         }
+                    }
 
-                        // Eksekusi UPDATE
-                        $stmt_update = $akses->con->prepare("
-                            UPDATE _member SET
-                                member_name             = ?,
-                                member_nip              = ?,
-                                id_level_karyawan       = ?,
-                                member_status           = ?,
-                                member_user_update_date = NOW()
-                            WHERE member_id = ?
-                        ");
+                    fclose($handle);
 
-                        if (!$stmt_update) {
-                            $errors[] = "Baris $row gagal update: error prepare statement - " . $akses->con->error;
-                            continue;
+                    // ============================================================
+                    // BUILD result_info untuk notifikasi
+                    // ============================================================
+                    $result_info = '';
+                    $juml_success = count($success);
+                    $juml_errors  = count($errors);
+
+                    if ($juml_errors > 0) {
+                        // Ada error - tampilkan list error saja
+                        $result_info .= '<ul class="mb-0">';
+                        foreach ($errors as $e) {
+                            $result_info .= "<li>$e</li>";
                         }
+                        $result_info .= '</ul>';
 
-                        $stmt_update->bind_param("ssisi", $nama, $use_nik, $level_id, $status_db, $member_id);
-
-                        if ($stmt_update->execute()) {
-                            $success[] = "Baris $row berhasil update (NIK: $nik_lama → $use_nik).";
-                        } else {
-                            $errors[] = "Baris $row gagal update (NIK: $nik_lama): " . $stmt_update->error;
-                        }
-                        $stmt_update->close();
+                        // Set session untuk notifikasi
+                        $_SESSION['upload_log_detail'] = $result_info;
+                        $_SESSION['upload_has_errors'] = true;
+                        $_SESSION['upload_success_count'] = $juml_success;
+                        $_SESSION['upload_error_count'] = $juml_errors;
                     } else {
-                        // MODE: INSERT (NIK Lama tidak ditemukan = data baru)
-                        $stmt_cek->close();
-
-                        $use_nik = !empty($nik_baru) ? $nik_baru : $nik_lama;
-
-                        // Cek duplikasi NIK untuk data baru
-                        $stmt_dup = $akses->con->prepare(
-                            "SELECT member_id FROM _member WHERE group_id = ? AND member_nip = ? LIMIT 1"
-                        );
-
-                        if (!$stmt_dup) {
-                            $errors[] = "Baris $row gagal: error prepare statement duplikasi insert - " . $akses->con->error;
-                            continue;
-                        }
-
-                        $stmt_dup->bind_param("is", $target_group_id, $use_nik);
-
-                        if (!$stmt_dup->execute()) {
-                            $errors[] = "Baris $row gagal: error execute duplikasi insert - " . $stmt_dup->error;
-                            $stmt_dup->close();
-                            continue;
-                        }
-
-                        $res_dup = $stmt_dup->get_result();
-
-                        if ($res_dup->num_rows > 0) {
-                            $errors[] = "Baris $row salah: NIK '$use_nik' sudah terdaftar pada entitas ini.";
-                            $stmt_dup->close();
-                            continue;
-                        }
-                        $stmt_dup->close();
-
-                        // Password = NIK
-                        $password = md5($use_nik);
-
-                        // Eksekusi INSERT
-                        $stmt_insert = $akses->con->prepare("
-                            INSERT INTO _member (
-                                group_id, group_id_aghris, member_name_aghris, mlevel_id,
-                                member_name, member_nip, member_type,
-                                member_login_web, member_login_apk, member_login_ipa,
-                                member_reg_id, member_reg_channel, member_device,
-                                member_desc, date_masuk_kerja, member_jabatan, member_kel_jabatan,
-                                member_unit_kerja, member_image, member_gender, member_address,
-                                member_city, member_province, member_postcode,
-                                id_level_karyawan, member_status, member_password,
-                                member_create_date, member_user_update_date
-                            ) VALUES (
-                                ?, '0', '', '1',
-                                ?, ?, 'general',
-                                '0', '0', '0',
-                                '', 'web', '',
-                                '', '0000-00-00', '', '',
-                                '', '', 'Pria', '',
-                                '', '', '00000',
-                                ?, ?, ?,
-                                NOW(), NOW()
-                            )
-                        ");
-
-                        if (!$stmt_insert) {
-                            $errors[] = "Baris $row gagal insert: error prepare statement - " . $akses->con->error;
-                            continue;
-                        }
-
-                        $stmt_insert->bind_param("ississ", $target_group_id, $nama, $use_nik, $level_id, $status_db, $password);
-
-                        if ($stmt_insert->execute()) {
-                            $success[] = "Baris $row berhasil tambah (NIK: $use_nik).";
-                        } else {
-                            $errors[] = "Baris $row gagal tambah (NIK: $use_nik): " . $stmt_insert->error;
-                        }
-                        $stmt_insert->close();
+                        // Semua sukses
+                        $_SESSION['notif_success'] = "Upload selesai: <strong>$juml_success data berhasil</strong> disimpan.";
                     }
-                }
 
-                fclose($handle);
-
-                // BUILD result_info untuk notifikasi
-                $result_info = '';
-                $juml_success = count($success);
-                $juml_errors  = count($errors);
-
-                if ($juml_errors > 0) {
-                    // Ada error - tampilkan list error saja
-                    $result_info .= '<ul class="mb-0">';
-                    foreach ($errors as $e) {
-                        $result_info .= "<li>$e</li>";
-                    }
-                    $result_info .= '</ul>';
-
-                    // Set session untuk notifikasi
-                    $_SESSION['upload_log_detail'] = $result_info;
-                    $_SESSION['upload_has_errors'] = true;
-                    $_SESSION['upload_success_count'] = $juml_success;
-                    $_SESSION['upload_error_count'] = $juml_errors;
-                } else {
-                    // Semua sukses
-                    $_SESSION['notif_success'] = "Upload selesai: <strong>$juml_success data berhasil</strong> disimpan.";
-                }
-
-                // LOGGING ke database
-                $log_db = '';
-                if ($juml_errors > 0) {
-                    $log_db .= '<h6 class="text-danger"><strong>Data yang Gagal Disimpan:</strong></h6>';
-                    $log_db .= '<ul class="text-danger">';
-                    foreach ($errors as $e) $log_db .= "<li>$e</li>";
-                    $log_db .= '</ul>';
-                    $log_db .= '<hr>';
-                    $log_db .= '<h6 class="text-success"><strong>Data yang Berhasil Disimpan:</strong></h6>';
-                    $log_db .= '<ul class="text-success">';
-                    if ($juml_success > 0) {
-                        foreach ($success as $s) $log_db .= "<li>$s</li>";
-                    } else {
-                        $log_db .= "<li>Tidak ada data yang berhasil disimpan</li>";
-                    }
-                    $log_db .= '</ul>';
-                } else {
-                    $log_db = '<h6 class="text-success"><strong>Semua Data Berhasil Disimpan!</strong></h6>';
-                    if ($juml_success > 0) {
-                        $log_db .= '<ul class="text-success">';
-                        foreach ($success as $s) $log_db .= "<li>$s</li>";
+                    // ============================================================
+                    // LOGGING ke database
+                    // ============================================================
+                    $log_db = '';
+                    if ($juml_errors > 0) {
+                        $log_db .= '<h6 class="text-danger"><strong>Data yang Gagal Disimpan:</strong></h6>';
+                        $log_db .= '<ul class="text-danger">';
+                        foreach ($errors as $e) $log_db .= "<li>$e</li>";
                         $log_db .= '</ul>';
+                        $log_db .= '<hr>';
+                        $log_db .= '<h6 class="text-success"><strong>Data yang Berhasil Disimpan:</strong></h6>';
+                        $log_db .= '<ul class="text-success">';
+                        if ($juml_success > 0) {
+                            foreach ($success as $s) $log_db .= "<li>$s</li>";
+                        } else {
+                            $log_db .= "<li>Tidak ada data yang berhasil disimpan</li>";
+                        }
+                        $log_db .= '</ul>';
+                    } else {
+                        $log_db = '<h6 class="text-success"><strong>Semua Data Berhasil Disimpan!</strong></h6>';
+                        if ($juml_success > 0) {
+                            $log_db .= '<ul class="text-success">';
+                            foreach ($success as $s) $log_db .= "<li>$s</li>";
+                            $log_db .= '</ul>';
+                        }
                     }
+
+                    $sql_log = "
+                        INSERT INTO berkas_upload_log SET
+                            nama_halaman = 'upload_data_sdm_massal',
+                            catatan      = '" . $akses->con->real_escape_string($log_db) . "',
+                            tgl_update   = NOW()
+                        ON DUPLICATE KEY UPDATE
+                            catatan      = '" . $akses->con->real_escape_string($log_db) . "',
+                            tgl_update   = NOW()
+                    ";
+                    $akses->con->query($sql_log);
+
+                    $akses->insertLog("upload massal SDM: $juml_success berhasil, $juml_errors gagal", '', '');
+                } else {
+                    // Tampilkan error validasi awal
+                    $_SESSION['notif_error'] = '<ul>' . $strError . '</ul>';
                 }
-
-                $sql_log = "
-                    INSERT INTO berkas_upload_log SET
-                        nama_halaman = 'upload_data_sdm_massal',
-                        catatan      = '" . $akses->con->real_escape_string($log_db) . "',
-                        tgl_update   = NOW()
-                    ON DUPLICATE KEY UPDATE
-                        catatan      = '" . $akses->con->real_escape_string($log_db) . "',
-                        tgl_update   = NOW()
-                ";
-                $akses->con->query($sql_log);
-
-                $akses->insertLog("upload massal SDM: $juml_success berhasil, $juml_errors gagal", '', '');
-                header("location:" . BE_MAIN_HOST . "/sdm/upload-massal");
-                exit;
-            } else {
-                // Tampilkan error validasi awal
-                $_SESSION['notif_error'] = '<ul>' . $strError . '</ul>';
-                header("location:" . BE_MAIN_HOST . "/sdm/upload-massal");
-                exit;
+            } catch (Exception $e) {
+                // Tangkap semua error dan tampilkan
+                $_SESSION['notif_error'] = '<div class="alert-heading"><strong>Error!</strong></div>' . $e->getMessage();
             }
+
+            header("location:" . BE_MAIN_HOST . "/sdm/upload-massal");
+            exit;
         }
     }
 }

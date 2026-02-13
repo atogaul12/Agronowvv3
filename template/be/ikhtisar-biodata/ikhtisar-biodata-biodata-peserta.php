@@ -1,7 +1,3 @@
-<?php
-//frameworkv2/template/be/ikhtisar-biodata/biodata-peserta.php
-?>
-
 <div class="page-header">
     <div class="page-header-left d-flex align-items-center">
         <div class="page-header-title">
@@ -14,19 +10,30 @@
     <!-- Card Filter -->
     <div class="card stretch stretch-full">
         <div class="card-header">
-            <h4 class="card-title">Filter Data</h4>
+            <h4 class="card-title">Filter data</h4>
         </div>
         <div class="card-body">
+            <!-- Form method berubah dari GET menjadi POST -->
             <form method="post" action="<?= $targetpage ?>" id="filterForm">
 
-                <!-- Nama Pelatihan -->
+                <!-- Nama Pelatihan --->
                 <div class="form-group row mb-2">
                     <label class="col-sm-2 col-form-label">Judul Pelatihan</label>
                     <div class="col-sm-5">
                         <div style="position: relative;">
-                            <input type="text" class="form-control" id="pelatihanSearch" placeholder="Ketik nama pelatihan">
-                            <input type="hidden" name="cr_id" id="cr_id" value="<?= htmlspecialchars($cr_id ?? '', ENT_QUOTES) ?>">
-                            <div id="pelatihanResult" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 0.375rem 0.375rem; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-height: 300px; overflow-y: auto; z-index: 1000; display: none; font-size: 0.875rem;"></div>
+                            <input type="text"
+                                class="form-control"
+                                id="pelatihanSearch"
+                                placeholder="Ketik nama pelatihan">
+
+                            <input type="hidden"
+                                name="cr_id"
+                                id="cr_id"
+                                value="<?= htmlspecialchars($cr_id ?? '', ENT_QUOTES) ?>">
+
+                            <div id="pelatihanResult"
+                                style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 0.375rem 0.375rem; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-height: 300px; overflow-y: auto; z-index: 1000; display: none; font-size: 0.875rem;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -44,12 +51,23 @@
                     <label class="col-sm-2 col-form-label">Periode</label>
                     <div class="col-sm-5">
                         <div class="input-group">
-                            <input type="date" class="form-control" name="tgl_awal" value="<?= htmlspecialchars($tgl_awal ?? '', ENT_QUOTES) ?>">
-                            <span class="input-group-text" style="min-width:50px; justify-content:center;">s/d</span>
-                            <input type="date" class="form-control" name="tgl_akhir" value="<?= htmlspecialchars($tgl_akhir ?? '', ENT_QUOTES) ?>">
+                            <input type="date"
+                                class="form-control"
+                                name="tgl_awal"
+                                value="<?= htmlspecialchars($tgl_awal ?? '', ENT_QUOTES) ?>">
+
+                            <span class="input-group-text" style="min-width:50px; justify-content:center;">
+                                s/d
+                            </span>
+
+                            <input type="date"
+                                class="form-control"
+                                name="tgl_akhir"
+                                value="<?= htmlspecialchars($tgl_akhir ?? '', ENT_QUOTES) ?>">
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Kategori -->
                 <div class="form-group row mb-2">
@@ -58,7 +76,8 @@
                         <select class="form-control" name="cat_id" id="catSelect">
                             <option value="">-- Semua Kategori --</option>
                             <?php foreach ($listKategori as $lk) { ?>
-                                <option value="<?= htmlspecialchars($lk->cat_id, ENT_QUOTES) ?>" <?= ($cat_id == $lk->cat_id) ? 'selected' : '' ?>>
+                                <option value="<?= htmlspecialchars($lk->cat_id, ENT_QUOTES) ?>"
+                                    <?= ($cat_id == $lk->cat_id) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($lk->cat_name, ENT_QUOTES) ?>
                                 </option>
                             <?php } ?>
@@ -73,7 +92,8 @@
                         <select class="form-control" name="entitas_saat_ini" id="entitasSekarangSelect">
                             <option value="">-- Semua Entitas --</option>
                             <?php foreach ($listGroup as $lg) { ?>
-                                <option value="<?= htmlspecialchars($lg->group_id, ENT_QUOTES) ?>" <?= ($entitas_saat_ini == $lg->group_id) ? 'selected' : '' ?>>
+                                <option value="<?= htmlspecialchars($lg->group_id, ENT_QUOTES) ?>"
+                                    <?= ($entitas_saat_ini == $lg->group_id) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($lg->group_name, ENT_QUOTES) ?>
                                 </option>
                             <?php } ?>
@@ -88,7 +108,8 @@
                         <select class="form-control" name="entitas_saat_ikut" id="entitasPelatihanSelect">
                             <option value="">-- Semua Entitas --</option>
                             <?php foreach ($listGroup as $lg) { ?>
-                                <option value="<?= htmlspecialchars($lg->group_id, ENT_QUOTES) ?>" <?= ($entitas_saat_ikut == $lg->group_id) ? 'selected' : '' ?>>
+                                <option value="<?= htmlspecialchars($lg->group_id, ENT_QUOTES) ?>"
+                                    <?= ($entitas_saat_ikut == $lg->group_id) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($lg->group_name, ENT_QUOTES) ?>
                                 </option>
                             <?php } ?>
@@ -98,10 +119,10 @@
 
                 <!-- Button Group -->
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary" style="width: 120px;">
+                    <button type="submit" class="btn btn-primary px-4">
                         <i class="feather-search me-2"></i>Cari
                     </button>
-                    <a href="<?= BE_MAIN_HOST ?>/ikhtisar-biodata/biodata-peserta?reset=1" class="btn btn-secondary" style="width: 120px;">
+                    <a href="<?= BE_MAIN_HOST ?>/ikhtisar-biodata/biodata-peserta?reset=1" class="btn btn-secondary px-4">
                         <i class="feather-x me-2"></i>Reset
                     </a>
                 </div>
@@ -112,12 +133,12 @@
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="data-tab" data-bs-toggle="tab" data-bs-target="#data" type="button" role="tab">
+            <button class="nav-link active" id="data-tab" data-bs-toggle="tab" data-bs-target="#data" type="button" role="tab" aria-controls="data" aria-selected="true">
                 <i class="feather-list me-2"></i>Daftar Data
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel" type="button" role="tab">
+            <button class="nav-link" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel" type="button" role="tab" aria-controls="excel" aria-selected="false">
                 <i class="feather-download me-2"></i>Download Excel
             </button>
         </li>
@@ -126,7 +147,7 @@
     <!-- Tab Content -->
     <div class="tab-content" id="myTabContent">
         <!-- Tab Daftar Data -->
-        <div class="tab-pane fade show active" id="data" role="tabpanel">
+        <div class="tab-pane fade show active" id="data" role="tabpanel" aria-labelledby="data-tab">
             <div class="card stretch stretch-full" style="border-top-left-radius:0">
                 <div class="card-header">
                     <h5 class="card-title">Daftar Biodata Peserta</h5>
@@ -149,10 +170,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if (!empty($data)) {
+                                <?php
+                                if (!empty($data)) {
                                     $i = $arrPage['num'];
                                     foreach ($data as $row) {
-                                        $i++; ?>
+                                        $i++;
+                                ?>
                                         <tr>
                                             <td><strong><?= $i ?></strong></td>
                                             <td><?= htmlspecialchars($row->judul_pelatihan, ENT_QUOTES) ?></td>
@@ -165,8 +188,10 @@
                                             <td><?= htmlspecialchars($row->email, ENT_QUOTES) ?></td>
                                             <td><?= htmlspecialchars($row->nomor_telepon, ENT_QUOTES) ?></td>
                                         </tr>
-                                    <?php }
-                                } else { ?>
+                                    <?php
+                                    }
+                                } else {
+                                    ?>
                                     <tr>
                                         <td colspan="10" class="text-center text-muted py-4">
                                             <i class="feather-inbox me-2"></i>Data tidak ditemukan.
@@ -177,16 +202,14 @@
                         </table>
 
                         <!-- Pagination -->
-                        <div class="mt-3">
-                            <?= $arrPage['bar'] ?>
-                        </div>
+                        <?= $arrPage['bar'] ?>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Tab Download Excel -->
-        <div class="tab-pane fade" id="excel" role="tabpanel">
+        <div class="tab-pane fade show" id="excel" role="tabpanel" aria-labelledby="excel-tab">
             <div class="card stretch stretch-full" style="border-top-left-radius:0">
                 <div class="card-header">
                     <h5 class="card-title">Download Data Excel</h5>
@@ -196,7 +219,7 @@
                         <h6 class="alert-heading"><strong>📋 Informasi Penting:</strong></h6>
                         <p class="mb-2">Ikuti langkah-langkah berikut untuk mengunduh dan membuka file Excel dengan benar:</p>
                         <ol class="mb-0">
-                            <li>Klik tombol <strong>"Download Excel"</strong> di bawah untuk mengunduh file.</li>
+                            <li>Klik tombol <strong>"Export Excel"</strong> di bawah untuk mengunduh file.</li>
                             <li>Jika Anda mendapatkan notifikasi format file saat membuka, ikuti langkah selanjutnya.</li>
                         </ol>
                     </div>
@@ -222,60 +245,15 @@
 
                     <p class="text-muted mb-3"><strong>Catatan:</strong> File Excel akan diunduh dengan semua filter yang telah Anda terapkan.</p>
 
+                    <!-- Export button hanya dengan parameter export, tanpa query string filter -->
                     <a href="<?= BE_MAIN_HOST ?>/ikhtisar-biodata/biodata-peserta?export=excel" class="btn btn-primary btn-block w-100">
-                        <i class="feather-download me-2"></i>Download Excel
+                        <i class="feather-download me-2"></i> Download Excel
                     </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    const inputPelatihan = document.getElementById('pelatihanSearch');
-    const resultBox = document.getElementById('pelatihanResult');
-    const crIdInput = document.getElementById('cr_id');
-    let timer = null;
-
-    inputPelatihan.addEventListener('keyup', function() {
-        clearTimeout(timer);
-        const keyword = this.value.trim();
-        crIdInput.value = '';
-
-        if (keyword.length < 2) {
-            resultBox.style.display = 'none';
-            return;
-        }
-
-        timer = setTimeout(() => {
-            fetch('<?= BE_MAIN_HOST ?>/ikhtisar-biodata/biodata-peserta?ajax=pelatihan&q=' + encodeURIComponent(keyword))
-                .then(res => res.json())
-                .then(data => {
-                    resultBox.innerHTML = data.length > 0 ?
-                        data.map(item => `<button type="button" class="pelatihan-item" onclick="pilihPelatihan(${item.cr_id}, '${item.cr_name.replace(/'/g, "\\'")}')"> ${item.cr_name} </button>`).join('') :
-                        '<div class="pelatihan-not-found">Tidak ditemukan</div>';
-                    resultBox.style.display = 'block';
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    resultBox.innerHTML = '<div class="pelatihan-not-found">Terjadi kesalahan</div>';
-                    resultBox.style.display = 'block';
-                });
-        }, 300);
-    });
-
-    function pilihPelatihan(id, nama) {
-        inputPelatihan.value = nama;
-        crIdInput.value = id;
-        resultBox.style.display = 'none';
-    }
-
-    document.addEventListener('click', (e) => {
-        if (!inputPelatihan.contains(e.target) && !resultBox.contains(e.target)) {
-            resultBox.style.display = 'none';
-        }
-    });
-</script>
 
 <style>
     .pelatihan-item {
@@ -322,3 +300,57 @@
         background: #999;
     }
 </style>
+
+<script>
+    const inputPelatihan = document.getElementById('pelatihanSearch');
+    const resultBox = document.getElementById('pelatihanResult');
+    const crIdInput = document.getElementById('cr_id');
+    let timer = null;
+
+    // Set nilai dari hidden input untuk menampilkan nama pelatihan yang dipilih sebelumnya
+    document.addEventListener('DOMContentLoaded', function() {
+        if (crIdInput.value) {
+            // Jika ada cr_id yang tersimpan, tampilkan nama pelatihan sebelumnya dari backend
+            // Anda bisa tambahkan hidden field lagi untuk nama pelatihan
+        }
+    });
+
+    inputPelatihan.addEventListener('keyup', function() {
+        clearTimeout(timer);
+        const keyword = this.value.trim();
+        crIdInput.value = '';
+
+        if (keyword.length < 2) {
+            resultBox.style.display = 'none';
+            return;
+        }
+
+        timer = setTimeout(() => {
+            fetch('<?= BE_MAIN_HOST ?>/ikhtisar-biodata/biodata-peserta?ajax=pelatihan&q=' + encodeURIComponent(keyword))
+                .then(res => res.json())
+                .then(data => {
+                    resultBox.innerHTML = data.length > 0 ?
+                        data.map(item => `<button type="button" class="pelatihan-item" onclick="pilihPelatihan(${item.cr_id}, '${item.cr_name.replace(/'/g, "\\'")}')"> ${item.cr_name} </button>`).join('') :
+                        '<div class="pelatihan-not-found">Tidak ditemukan</div>';
+                    resultBox.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultBox.innerHTML = '<div class="pelatihan-not-found">Terjadi kesalahan</div>';
+                    resultBox.style.display = 'block';
+                });
+        }, 300);
+    });
+
+    function pilihPelatihan(id, nama) {
+        inputPelatihan.value = nama;
+        crIdInput.value = id;
+        resultBox.style.display = 'none';
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!inputPelatihan.contains(e.target) && !resultBox.contains(e.target)) {
+            resultBox.style.display = 'none';
+        }
+    });
+</script>

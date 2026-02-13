@@ -1,5 +1,5 @@
 <?php
-//frameworkv2/template/be/sdm/update-password.php
+// agronow/agronow_insight/template/be/sdm/update-password.php
 ?>
 
 <div class="page-header">
@@ -29,22 +29,20 @@
             <!-- Info Karyawan -->
             <div class="alert alert-info mb-4">
                 <h6 class="alert-heading"><strong>Informasi Karyawan:</strong></h6>
-                <div class="table-responsive">
-                    <table class="table table-sm table-borderless mb-0">
-                        <tr>
-                            <td style="width: 150px;"><strong>NIK</strong></td>
-                            <td>: <?= htmlspecialchars($dataMember->member_nip, ENT_QUOTES) ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Nama</strong></td>
-                            <td>: <?= htmlspecialchars($dataMember->member_name, ENT_QUOTES) ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Entitas</strong></td>
-                            <td>: <?= htmlspecialchars($dataMember->group_name, ENT_QUOTES) ?></td>
-                        </tr>
-                    </table>
-                </div>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr>
+                        <td style="width: 150px;"><strong>NIK</strong></td>
+                        <td>: <?= htmlspecialchars($dataMember->member_nip, ENT_QUOTES) ?></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nama</strong></td>
+                        <td>: <?= htmlspecialchars($dataMember->member_name, ENT_QUOTES) ?></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Entitas</strong></td>
+                        <td>: <?= htmlspecialchars($dataMember->group_name, ENT_QUOTES) ?></td>
+                    </tr>
+                </table>
             </div>
 
             <?php if ($is_aghris): ?>
@@ -88,7 +86,7 @@
                         <div class="col-sm-offset-2 col-sm-10">
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-primary" id="btnSubmit" disabled style="width: 150px;">
-                                    <i class="feather-save me-2"></i>Update
+                                    <i class="feather-save me-2"></i>Update Password
                                 </button>
                                 <a href="<?= BE_MAIN_HOST ?>/sdm/daftar-karyawan" class="btn btn-secondary" style="width: 120px;">
                                     <i class="feather-x me-2"></i>Batal

@@ -1,5 +1,5 @@
 <?php
-//frameworkv2/class/umum.class.php
+
 /*
  *
  * tempat untuk menambahkan fungsi2 baru yg belum ada di class func
@@ -284,14 +284,10 @@ class Umum extends func
 
 		return $hasil;
 	}
-	
-	// ========== FUNGSI BARU UNTUK SISTEM TERINTEGRASI ==========
 
-	/**
-	 * Get filter untuk ikhtisar data pelatihan berdasarkan level akses user
-	 */
 	function getFilterIkhtisarDataPelatihan()
 	{
+
 		$user_login_group_id   = $_SESSION['be']['id_group'] ?? null;
 		$user_login_silsilah   = $_SESSION['be']['silsilah'] ?? '';
 		$user_login_tipe_akses = $_SESSION['be']['tipe_akses_member'] ?? 'self';
@@ -312,42 +308,43 @@ class Umum extends func
 		return $filter;
 	}
 
-	/**
-	 * Get list group berdasarkan akses user login
-	 */
 	function getListGroupByAkses($akses)
 	{
+
 		$user_login_group_id   = $_SESSION['be']['id_group'] ?? null;
 		$user_login_silsilah   = $_SESSION['be']['silsilah'] ?? '';
 		$user_login_tipe_akses = $_SESSION['be']['tipe_akses_member'] ?? 'self';
 
 		if ($user_login_tipe_akses == "super_admin") {
+
 			$sql = "
-				SELECT group_id, group_name, silsilah
-				FROM _group
-				WHERE group_status='active'
-				ORDER BY silsilah ASC
-			";
+            SELECT group_id, group_name, silsilah
+            FROM _group
+            WHERE group_status='active'
+            ORDER BY silsilah ASC
+        ";
 		} else if ($user_login_tipe_akses == "as_parent") {
+
 			if (!empty($user_login_silsilah)) {
 				$sql = "
-					SELECT group_id, group_name, silsilah
-					FROM _group
-					WHERE group_status='active'
-					  AND silsilah LIKE '" . $user_login_silsilah . "%'
-					ORDER BY silsilah ASC
-				";
+                SELECT group_id, group_name, silsilah
+                FROM _group
+                WHERE group_status='active'
+                  AND silsilah LIKE '" . $user_login_silsilah . "%'
+                ORDER BY silsilah ASC
+            ";
 			} else {
 				return array();
 			}
 		} else {
+
 			$sql = "
-				SELECT group_id, group_name, silsilah
-				FROM _group
-				WHERE group_status='active'
-				  AND group_id = '" . $user_login_group_id . "'
-				ORDER BY silsilah ASC
-			";
+            SELECT group_id, group_name, silsilah
+            FROM _group
+            WHERE group_status='active'
+              AND group_id = '" . $user_login_group_id . "'
+            ORDER BY silsilah ASC
+        ";
 		}
 
 		return $akses->doQuery($sql, 0, 'object');

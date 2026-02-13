@@ -1,7 +1,3 @@
-<?php
-//frameworkv2/template/be/sdm/upload-massal.php
-?>
-
 <div class="page-header">
     <div class="page-header-left d-flex align-items-center">
         <div class="page-header-title">
@@ -11,7 +7,7 @@
 </div>
 
 <div class="main-content">
-    <!-- Notifikasi -->
+    <!-- Notifikasi Success -->
     <?php if (isset($_SESSION['notif_success'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="feather-check-circle me-2"></i><?= $_SESSION['notif_success'] ?>
@@ -20,6 +16,7 @@
         <?php unset($_SESSION['notif_success']); ?>
     <?php endif; ?>
 
+    <!-- Notifikasi Error Standard -->
     <?php if (isset($_SESSION['notif_error']) && !isset($_SESSION['upload_log_detail'])): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="feather-alert-circle me-2"></i>
@@ -73,7 +70,7 @@
     <?php endif; ?>
 
     <!-- Tab Navigation -->
-    <ul class="nav nav-tabs mt-3" id="uploadTab" role="tablist">
+    <ul class="nav nav-tabs" id="uploadTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab">
                 <i class="feather-upload me-2"></i>Upload CSV
@@ -169,8 +166,8 @@
                         <div class="form-group row">
                             <div class="col-sm-offset-2 col-sm-10">
                                 <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary" style="width: 180px;">
-                                        <i class="feather-upload me-2"></i>Upload
+                                    <button type="submit" class="btn btn-primary" style="width: 150px;" id="btnSubmit">
+                                        <i class="feather-upload me-2"></i>Upload & Proses
                                     </button>
                                     <a href="<?= BE_MAIN_HOST ?>/sdm/daftar-karyawan" class="btn btn-secondary" style="width: 120px;">
                                         <i class="feather-arrow-left me-2"></i>Kembali
@@ -201,47 +198,45 @@
                     <div class="mb-3">
                         <h6 class="fw-bold mb-2">Template: UPDATE Data (Dengan Opsi Ganti NIK)</h6>
                         <p class="text-muted mb-2">Gunakan template ini untuk update karyawan yang sudah ada atau menambah karyawan baru. Password tidak akan berubah saat update. Kolom "NIK Baru" bisa kosong jika tidak ada perubahan NIK.</p>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-bordered mb-3">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="text-center">NIK</th>
-                                        <th class="text-center">NIK Baru <small>(opsional)</small></th>
-                                        <th class="text-center">Nama Karyawan</th>
-                                        <th class="text-center">Level Karyawan</th>
-                                        <th class="text-center">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>70612</td>
-                                        <td>10644</td>
-                                        <td>Audy Kusuma</td>
-                                        <td>BOD-3</td>
-                                        <td>Aktif</td>
-                                    </tr>
-                                    <tr>
-                                        <td>70613</td>
-                                        <td></td>
-                                        <td>Budi Santoso - Updated</td>
-                                        <td>BOD-2</td>
-                                        <td>Nonaktif</td>
-                                    </tr>
-                                    <tr>
-                                        <td>70661</td>
-                                        <td></td>
-                                        <td>Citra Wijaya</td>
-                                        <td>BOD-1</td>
-                                        <td>Aktif</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <table class="table table-sm table-bordered mb-3">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center">NIK</th>
+                                    <th class="text-center">NIK Baru <small>(opsional)</small></th>
+                                    <th class="text-center">Nama Karyawan</th>
+                                    <th class="text-center">Level Karyawan</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>70612</td>
+                                    <td>10644</td>
+                                    <td>Audy Kusuma</td>
+                                    <td>BOD-3</td>
+                                    <td>Aktif</td>
+                                </tr>
+                                <tr>
+                                    <td>70613</td>
+                                    <td></td>
+                                    <td>Budi Santoso - Updated</td>
+                                    <td>BOD-2</td>
+                                    <td>Nonaktif</td>
+                                </tr>
+                                <tr>
+                                    <td>70661</td>
+                                    <td></td>
+                                    <td>Citra Wijaya</td>
+                                    <td>BOD-1</td>
+                                    <td>Aktif</td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-primary" onclick="downloadTemplate('comma')" style="width: 180px;">
+                            <button type="button" class="btn btn-primary" onclick="downloadTemplate('comma')">
                                 <i class="feather-download me-2"></i>Download (Comma)
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="downloadTemplate('semicolon')" style="width: 200px;">
+                            <button type="button" class="btn btn-secondary" onclick="downloadTemplate('semicolon')">
                                 <i class="feather-download me-2"></i>Download (Semicolon)
                             </button>
                         </div>
@@ -303,13 +298,13 @@
                     <h6 class="mb-3"><strong>4. Contoh Format CSV</strong></h6>
                     <ul class="mb-3">
                         <li><strong>Contoh dengan ganti NIK (Comma):</strong>
-                            <pre class="bg-light p-2 rounded" style="font-size: 0.85em;">NIK,NIK Baru,Nama Karyawan,Level Karyawan,Status
-70612,10644,Audy Kusuma,BOD-3,Aktif</pre>
+                            <code style="display: block; margin: 5px 0; white-space: pre;">NIK,NIK Baru,Nama Karyawan,Level Karyawan,Status
+                                70612,10644,Audy Kusuma,BOD-3,Aktif</code>
                         </li>
                         <li><strong>Contoh tanpa ganti NIK (Semicolon):</strong>
-                            <pre class="bg-light p-2 rounded" style="font-size: 0.85em;">NIK;NIK Baru;Nama Karyawan;Level Karyawan;Status
-70613;;Budi Santoso Updated;BOD-2;Nonaktif
-70661;;Citra Wijaya;BOD-1;Aktif</pre>
+                            <code style="display: block; margin: 5px 0; white-space: pre;">NIK;NIK Baru;Nama Karyawan;Level Karyawan;Status
+                                70613;;Budi Santoso Updated;BOD-2;Nonaktif
+                                70661;;Citra Wijaya;BOD-1;Aktif</code>
                         </li>
                     </ul>
 
@@ -345,7 +340,7 @@
                     </ul>
 
                     <h6 class="mb-3"><strong>7. Tips & Trik</strong></h6>
-                    <ul class="mb-0">
+                    <ul>
                         <li>Tidak boleh ada spasi di awal/akhir setiap cell</li>
                         <li>Simpan dengan encoding UTF-8</li>
                         <li>Pastikan delimiter yang dipilih sesuai dengan template yang Anda download</li>
@@ -358,6 +353,40 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+
+<script>
+    // Loading state saat submit form
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        var btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+    });
+
+    function downloadTemplate(format) {
+        let csv = '';
+        let filename = '';
+        let delimiter = (format === 'semicolon') ? ';' : ',';
+
+        csv = 'NIK' + delimiter + 'NIK Baru' + delimiter + 'Nama Karyawan' + delimiter + 'Level Karyawan' + delimiter + 'Status\n' +
+            '70612' + delimiter + '10644' + delimiter + 'Audy Kusuma' + delimiter + 'BOD-3' + delimiter + 'Aktif\n' +
+            '70613' + delimiter + '' + delimiter + 'Budi Santoso' + delimiter + 'BOD-2' + delimiter + 'Nonaktif\n' +
+            '70661' + delimiter + '' + delimiter + 'Citra Wijaya' + delimiter + 'BOD-1' + delimiter + 'Aktif\n';
+        filename = 'template_sdm_upload_' + format + '_' + new Date().getTime() + '.csv';
+
+        const blob = new Blob([csv], {
+            type: 'text/csv;charset=utf-8;'
+        });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>

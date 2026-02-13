@@ -21,7 +21,7 @@ define("DEV_SQL_HOST", 'localhost');
 define("DEV_SQL_PORT", '3306');
 define("DEV_SQL_USER", 'root');
 define("DEV_SQL_PASS", '');
-define("DEV_SQL_DB", 'lpp_agronow');
+define("DEV_SQL_DB", 'lpp_frameworkv2');
 define("DEV_BASE_NUMBER_ARRURL", 1); // jalankan file z.php dari browser untuk mengetahui value DEV_BASE_NUMBER_ARRURL
 define("DEV_ERROR_REPORTING_LV", 1);
 define("DEV_MYSQL_DUMP_WIN_LOC", '"D:\wamp64\bin\mysql\mysql5.7.26\bin\mysqldump.exe"');
